@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Street Cricket Game</title>
+    <style>
+        body { text-align: center; background-color: #87CEEB; }
+        canvas { background: #28a745; display: block; margin: auto; }
+        #welcomeScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        #welcomeScreen h1 { font-size: 36px; margin-bottom: 10px; }
+        #welcomeScreen p { font-size: 20px; }
+    </style>
+</head>
+<body>
+    <div id="welcomeScreen">
+        <h1>Street Cricket</h1>
+        <p>Designed by Haji Adnan</p>
+        <button onclick="startGame()">Start Game</button>
+    </div>
+    <h1>Street Cricket</h1>
+    <canvas id="gameCanvas" width="800" height="400"></canvas>
+    <h2>Score: <span id="score">0</span> | Overs: <span id="overs">0</span></h2>
+    <script>
+        function startGame() {
+            document.getElementById("welcomeScreen").style.display = "none";
+        }
+
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+
+        let bat = { x: 750, y: 200, width: 20, height: 80 };
+        let ball = { x: 50, y: 200, radius: 10, dx: 5, dy: 2 };
+        let score = 0;
+        let overs = 0;
+        let ballsBowled = 0;
+        let fielders = [{ x: 400, y: 100, width: 20, height: 20 }, { x: 600, y: 300, width: 20, height: 20 }];
+
+        document.addEventListener("keydown", function (event) {
+            if (event.key === "ArrowUp" && bat.y > 0) {
+                bat.y -= 20;
+            } else if (event.key === "ArrowDown" && bat.y < canvas.height - bat.height) {
+                bat.y += 20;
+            }
+        });
+
+        function update() {
+            ball.x += ball.dx;
+            ball.y += ball.dy;
+
+            if (ball.y + ball.radius > canvas.height || ball.y - ball.radius < 0) {
+                ball.dy *= -1;
+            }
+
+            if (
+                ball.x + ball.radius > bat.x &&
+                ball.y > bat.y && ball.y < bat.y + bat.height
+            ) {
+                ball.dx *= -1;
+                score++;
+                ballsBowled++;
+                document.getElementById("score").innerText = score;
+            }
+
+            fielders.forEach(fielder => {
+                if (
+                    ball.x + ball.radius > fielder.x && ball.x - ball.radius < fielder.x + fielder.width &&
+                    ball.y + ball.radius > fielder.y && ball.y - ball.radius < fielder.y + fielder.height
+                ) {
+                    alert("Caught Out! Your Score: " + score);
+                    document.location.reload();
+                }
+            });
+
+            if (ballsBowled >= 6) {
+                overs++;
+                ballsBowled = 0;
+                document.getElementById("overs").innerText = overs;
+            }
+
+            if (ball.x - ball.radius < 0) {
+                alert("Game Over! Your Score: " + score);
+                document.location.reload();
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "white";
+            ctx.fillRect(bat.x, bat.y, bat.width, bat.height);
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+            ctx.fillStyle = "red";
+            ctx.fill();
+            ctx.closePath();
+
+            ctx.fillStyle = "blue";
+            fielders.forEach(fielder => {
+                ctx.fillRect(fielder.x, fielder.y, fielder.width, fielder.height);
+            });
+        }
+
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        gameLoop();
+    </script>
+</body>
+</html>
