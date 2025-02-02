@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+	<title></title>
+	<meta name="generator" content="LibreOffice 7.6.4.1 (Linux)"/>
+	<meta name="created" content="00:00:00"/>
+	<meta name="changed" content="00:00:00"/>
+	<style type="text/css">
+		@page { size: 8.27in 11.69in; margin: 0.79in }
+		p { line-height: 115%; margin-bottom: 0.1in; background: transparent }
+		pre { background: transparent }
+		pre.western { font-family: "Liberation Mono", monospace; font-size: 10pt }
+		pre.cjk { font-family: "NSimSun", monospace; font-size: 10pt }
+		pre.ctl { font-family: "Liberation Mono", monospace; font-size: 10pt }
+	</style>
+</head>
+<body lang="en-US" link="#000080" vlink="#800000" dir="ltr"><pre class="western">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+    &lt;meta charset=&quot;UTF-8&quot;&gt;
+    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+    &lt;title&gt;Street Cricket Game&lt;/title&gt;
+    &lt;style&gt;
+        body { text-align: center; background-color: #87CEEB; }
+        canvas { background: #28a745; display: block; margin: auto; }
+        #welcomeScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        #welcomeScreen h1 { font-size: 36px; margin-bottom: 10px; }
+        #welcomeScreen p { font-size: 20px; }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;div id=&quot;welcomeScreen&quot;&gt;
+        &lt;h1&gt;Street Cricket&lt;/h1&gt;
+        &lt;p&gt;Designed by Haji Adnan&lt;/p&gt;
+        &lt;button onclick=&quot;startGame()&quot;&gt;Start Game&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;h1&gt;Street Cricket&lt;/h1&gt;
+    &lt;canvas id=&quot;gameCanvas&quot; width=&quot;800&quot; height=&quot;400&quot;&gt;&lt;/canvas&gt;
+    &lt;h2&gt;Score: &lt;span id=&quot;score&quot;&gt;0&lt;/span&gt; | Overs: &lt;span id=&quot;overs&quot;&gt;0&lt;/span&gt;&lt;/h2&gt;
+    &lt;script&gt;
+        function startGame() {
+            document.getElementById(&quot;welcomeScreen&quot;).style.display = &quot;none&quot;;
+        }
+
+        const canvas = document.getElementById(&quot;gameCanvas&quot;);
+        const ctx = canvas.getContext(&quot;2d&quot;);
+
+        let bat = { x: 750, y: 200, width: 20, height: 80 };
+        let ball = { x: 50, y: 200, radius: 10, dx: 5, dy: 2 };
+        let score = 0;
+        let overs = 0;
+        let ballsBowled = 0;
+        let fielders = [{ x: 400, y: 100, width: 20, height: 20 }, { x: 600, y: 300, width: 20, height: 20 }];
+
+        document.addEventListener(&quot;keydown&quot;, function (event) {
+            if (event.key === &quot;ArrowUp&quot; &amp;&amp; bat.y &gt; 0) {
+                bat.y -= 20;
+            } else if (event.key === &quot;ArrowDown&quot; &amp;&amp; bat.y &lt; canvas.height - bat.height) {
+                bat.y += 20;
+            }
+        });
+
+        function update() {
+            ball.x += ball.dx;
+            ball.y += ball.dy;
+
+            if (ball.y + ball.radius &gt; canvas.height || ball.y - ball.radius &lt; 0) {
+                ball.dy *= -1;
+            }
+
+            if (
+                ball.x + ball.radius &gt; bat.x &amp;&amp;
+                ball.y &gt; bat.y &amp;&amp; ball.y &lt; bat.y + bat.height
+            ) {
+                ball.dx *= -1;
+                score++;
+                ballsBowled++;
+                document.getElementById(&quot;score&quot;).innerText = score;
+            }
+
+            fielders.forEach(fielder =&gt; {
+                if (
+                    ball.x + ball.radius &gt; fielder.x &amp;&amp; ball.x - ball.radius &lt; fielder.x + fielder.width &amp;&amp;
+                    ball.y + ball.radius &gt; fielder.y &amp;&amp; ball.y - ball.radius &lt; fielder.y + fielder.height
+                ) {
+                    alert(&quot;Caught Out! Your Score: &quot; + score);
+                    document.location.reload();
+                }
+            });
+
+            if (ballsBowled &gt;= 6) {
+                overs++;
+                ballsBowled = 0;
+                document.getElementById(&quot;overs&quot;).innerText = overs;
+            }
+
+            if (ball.x - ball.radius &lt; 0) {
+                alert(&quot;Game Over! Your Score: &quot; + score);
+                document.location.reload();
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = &quot;white&quot;;
+            ctx.fillRect(bat.x, bat.y, bat.width, bat.height);
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+            ctx.fillStyle = &quot;red&quot;;
+            ctx.fill();
+            ctx.closePath();
+
+            ctx.fillStyle = &quot;blue&quot;;
+            fielders.forEach(fielder =&gt; {
+                ctx.fillRect(fielder.x, fielder.y, fielder.width, fielder.height);
+            });
+        }
+
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        gameLoop();
+    &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+</body>
+</html>
